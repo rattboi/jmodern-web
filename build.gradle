@@ -46,6 +46,7 @@ task capsule(type: Jar, dependsOn: classes) {
 
     from jar
     from { configurations.runtime }
+    from { sourceSets.main.resources }
 
     from (configurations.capsule.collect { zipTree(it) }) { include 'Capsule.class' }
 
@@ -56,7 +57,11 @@ task capsule(type: Jar, dependsOn: classes) {
             'Application-Version': version,
             'Min-Java-Version': '1.8.0',
             'JVM-Args': run.jvmArgs.join(' '),
-            'System-Properties': run.systemProperties.collect {k,v -> "$k=$v"}.join(' '),
+            'System-Properties': (run.systemProperties + ["dropwizard.config": '$CAPSULE_DIR/jmodern.yml']).collect {k,v -> "$k=$v"}.join(' '),
             )
     }
+}
+
+run {
+    systemProperty "dropwizard.config", "build/resources/main/jmodern.yml"
 }
